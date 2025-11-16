@@ -52,4 +52,14 @@ Here is a pre-start checklist:
 
 ## Implementation
 
-** ADD YOUR IMPLEMENTATION DOCUMENTATION HERE **
+PHASE 2 :
+- Create a Dockerfile to containerize the application, by running this command in the same folder as the dockerfile:
+  ```bash
+  docker build -t hivebox-app .
+  ```
+- Build and run the Docker container locally to ensure it works as expected.
+  ```bash
+  docker run --rm hivebox-app
+  ```
+
+PHASE 3 :
