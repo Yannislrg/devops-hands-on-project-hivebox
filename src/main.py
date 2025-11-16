@@ -1,4 +1,3 @@
-from time import strptime
 from fastapi import FastAPI
 from datetime import datetime, timedelta
 import requests
