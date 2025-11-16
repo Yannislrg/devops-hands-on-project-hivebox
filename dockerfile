@@ -4,4 +4,8 @@ WORKDIR /HIVEBOX
 
 COPY src/ /HIVEBOX/
 
-CMD [ "python", "main.py" ]
+COPY requirements.txt /HIVEBOX/
+
+RUN pip install -r requirements.txt
+
+CMD [ "fastapi", "run", "main.py" ]
