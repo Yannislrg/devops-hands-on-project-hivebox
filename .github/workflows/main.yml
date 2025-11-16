@@ -1,0 +1,26 @@
+name: main
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    
+jobs:
+  launch_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13' 
+
+      - name: Install dependencies
+        run: pip install flake8
+      
+      - name: Lint with flake8
+        run: flake8 src/
+
+      - name: build_docker
+        run: |
+          dockerfile build . -t hivebox
