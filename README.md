@@ -63,3 +63,10 @@ PHASE 2 :
   ```
 
 PHASE 3 :
+- Create a main.yml file in the .github/workflows/ directory to set up a GitHub Actions CI pipeline that:
+  - Lints the Python code using flake8.
+  - Lints the Dockerfile using hadolint.
+  - Runs unit tests using pytest.
+  - Builds the Docker image using the Dockerfile.
+
+- Add a scorecard.yml file to the repository to configure Openssf Scorecard for github action quality analysis.
