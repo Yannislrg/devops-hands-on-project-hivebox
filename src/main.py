@@ -51,7 +51,7 @@ def get_avg_temperature():
     """
     temperature = 0.0
     for box_id in BOX_ID:
-        response = requests.get(f"{BASE_URL}/boxes/{box_id}", timeout=10)
+        response = requests.get(f"{BASE_URL}/boxes/{box_id}", timeout=30)
         data = response.json()
         for sensor in data.get("sensors", []):
             if sensor.get("title") != "Temperatur":
