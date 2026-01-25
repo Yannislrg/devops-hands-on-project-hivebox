@@ -70,3 +70,6 @@ PHASE 3 :
   - Builds the Docker image using the Dockerfile.
 
 - Add a scorecard.yml file to the repository to configure Openssf Scorecard for github action quality analysis.
+
+To launch tests locally, you can use the following commands:
+```bash

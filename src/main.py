@@ -1,15 +1,17 @@
 from fastapi import FastAPI
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import requests
+from dotenv import load_dotenv
+import os
+from prometheus_fastapi_instrumentator import Instrumentator
 
+load_dotenv()
 app = FastAPI()
 
-BASE_URL = "https://api.opensensemap.org"
-BOX_ID = [
-    "5eba5fbad46fb8001b799786",
-    "5c21ff8f919bf8001adf2488",
-    "5ade1acf223bd80019a1011c",
-]
+Instrumentator().instrument(app).expose(app)
+
+BASE_URL = os.getenv("BASE_URL")
+BOX_ID = os.getenv("BOX_ID").split(",")
 
 
 @app.get("/version")
@@ -19,7 +21,7 @@ def print_version():
     Returns:
         _type_: return description
     """
-    version = "0.0.2"
+    version = "0.0.3"
     return {"Application Version": version}
 
 
@@ -35,11 +37,36 @@ def too_old_data(sensor):
     last_measurement_time = datetime.strptime(
         sensor["lastMeasurement"]["createdAt"], "%Y-%m-%dT%H:%M:%S.%fZ"
     )
+    # createdAt ends with 'Z' (UTC) so make the datetime timezone-aware
+    last_measurement_time = last_measurement_time.replace(tzinfo=timezone.utc)
     print("last measurement time:", last_measurement_time)
     if last_measurement_time:
-        if datetime.now() - last_measurement_time > timedelta(hours=2):
+        if datetime.now(timezone.utc) - last_measurement_time > timedelta(weeks=100):
+            print("data too old")
             return True
+    print("data is recent")
     return False
+
+
+def set_status(temperature):
+    """Set status based on temperature value
+
+    Args:
+        temperature (float): temperature value
+
+    Returns:
+        str: status
+    """
+    if temperature < 10:
+        status = "Too cold"
+        return status
+    elif 11 <= temperature <= 36:
+        status = "good"
+        return status
+    else:
+        status = "Too hot"
+    print("status:", status)
+    return status
 
 
 @app.get("/temperature")
@@ -50,6 +77,7 @@ def get_avg_temperature():
         _type_: return avg temperature
     """
     temperature = 0.0
+    box_active = 0
     for box_id in BOX_ID:
         response = requests.get(f"{BASE_URL}/boxes/{box_id}", timeout=30)
         data = response.json()
@@ -60,9 +88,14 @@ def get_avg_temperature():
                 continue
             print("sensor data:", sensor)
             temperature += float(sensor["lastMeasurement"]["value"])
-
-    temperature /= len(BOX_ID)
-    rounded_temp = round(temperature, 4)
-    if rounded_temp:
-        return {"average_temperature": rounded_temp}
-    return {"error": "No temperature data available"}
+            box_active += 1
+    print("box_active:", box_active)
+    if box_active == 0:
+        return {"error": "No active boxes with valid temperature data"}
+    temperature /= box_active
+    rounded_temp = round(temperature, 2)
+    status = set_status(temperature)
+    return {
+        "average_temperature": rounded_temp,
+        "status": status,
+    }

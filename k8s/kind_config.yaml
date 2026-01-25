@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hivebox
+spec:
+  selector:
+    matchLabels:
+      app: hivebox
+  template:
+    metadata:
+      labels:
+        app: hivebox
+    spec:
+      containers:
+      - name: hivebox
+        image: user/hivebox:latest
+        env:
+          - name : BASE_URL
+            valueFrom:
+              configMapKeyRef:
+                name: hivebox-config
+                key: BASE_URL
+          - name : BOX_ID
+            valueFrom:
+              configMapKeyRef:
+                name: hivebox-config
+                key: BOX_ID
+        ports:
+          - containerPort: 80
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: hivebox-service
+spec:
+  selector:
+    app: hivebox
+  ports:
+  - port: 80
+    targetPort: 80
+
+---
+
+apiVersion: v1
+kind: Ingress
+metadata:
+  name: hivebox-ingress
+  labels:
+    app.kubernetes.io/name: hivebox-ingress
+spec:
+  rules:
+  - host: "hivebox.com"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: hivebox-service
+            port: 
+              number: 80
+#2. Le défi de Kind et des Ports 🔄

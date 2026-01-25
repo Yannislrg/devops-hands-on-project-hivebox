@@ -7,7 +7,7 @@ client = TestClient(app)
 def test_read_root():
     response = client.get("/version")
     assert response.status_code == 200
-    assert response.json() == {"Application Version": "0.0.2"}
+    assert response.json() == {"Application Version": "0.0.3"}
 
 
 def test_avg_temperature():
