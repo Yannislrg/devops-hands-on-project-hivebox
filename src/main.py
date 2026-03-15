@@ -1,8 +1,13 @@
-from fastapi import FastAPI
+"""
+FastAPI application for monitoring and calculating average temperature from remote sensor boxes.
+"""
+
+import os
 from datetime import datetime, timedelta, timezone
+
 import requests
 from dotenv import load_dotenv
-import os
+from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 
 load_dotenv()

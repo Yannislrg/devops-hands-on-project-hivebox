@@ -59,7 +59,7 @@ PHASE 2 :
   ```
 - Build and run the Docker container locally to ensure it works as expected.
   ```bash
-  docker run --rm hivebox-app
+  docker run --rm --env-file .env -p 8000:80 hivebox-app
   ```
 
 PHASE 3 :
